@@ -49,7 +49,7 @@
 
   /* Extra Keldrith tokens (exposed as utilities in @theme inline below). */
   --muted: #4f5872;
-  --faint: #6b7287;
+  --faint: #5d6479;
   --line: #d6c8a8;
   --frame: #b8995a;
   --hp: #b23a2c;
@@ -86,7 +86,7 @@
   --color-success-content: #0b1020;
   --color-warning: #eba347;
   --color-warning-content: #0b1020;
-  --color-error: #d0503f;
+  --color-error: #da5e4f;
   --color-error-content: #0b1020;
 
   --radius-selector: 0.5rem;
