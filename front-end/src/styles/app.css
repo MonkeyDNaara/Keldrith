@@ -1,0 +1,149 @@
+/*
+ * Keldrith design tokens and themes.
+ * Components use only theme colors (bg-primary, text-muted, bg-hp …), never raw hex.
+ * Token source: design brief (dark = night blue + gold, light = parchment + bronze).
+ */
+
+@import 'tailwindcss';
+
+/* daisyUI components; built-in themes off, we only ship our two custom themes. */
+@plugin 'daisyui' {
+  themes: false;
+}
+
+/* Light: default when the OS has no dark preference. */
+@plugin 'daisyui/theme' {
+  name: 'keldrith-light';
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: #f4eddf; /* bg (page) */
+  --color-base-200: #fbf7ee; /* surface */
+  --color-base-300: #ede3cf; /* raised */
+  --color-base-content: #1a2440; /* text */
+  --color-primary: #8a6a2a; /* buttons, XP */
+  --color-primary-content: #fbf7ee; /* text on primary */
+  --color-secondary: #2f62c9;
+  --color-secondary-content: #fbf7ee;
+  --color-accent: #7a5c22; /* gold/bronze text, links */
+  --color-accent-content: #fbf7ee;
+  --color-neutral: #d6c8a8;
+  --color-neutral-content: #1a2440;
+  --color-info: #2f62c9;
+  --color-info-content: #fbf7ee;
+  --color-success: #2f7d43;
+  --color-success-content: #fbf7ee;
+  --color-warning: #a8641a;
+  --color-warning-content: #fbf7ee;
+  --color-error: #b23a2c;
+  --color-error-content: #fbf7ee;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+
+  /* Extra Keldrith tokens (exposed as utilities in @theme inline below). */
+  --muted: #4f5872;
+  --faint: #6b7287;
+  --line: #d6c8a8;
+  --frame: #b8995a;
+  --hp: #b23a2c;
+  --mana: #2f62c9;
+  --danger: #9e2f22;
+  --class-warrior: #b83a2f;
+  --class-ranger: #2f7d43;
+  --class-monk: #a8641a;
+  --class-priest: #6b4bb8;
+  --class-fallback: #4f5872;
+}
+
+/* Dark: main look, used when the OS prefers dark or the user picks it. */
+@plugin 'daisyui/theme' {
+  name: 'keldrith-dark';
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #0b1020;
+  --color-base-200: #121a2e;
+  --color-base-300: #1a2440;
+  --color-base-content: #f1eadb;
+  --color-primary: #d4af5f;
+  --color-primary-content: #0b1020;
+  --color-secondary: #5a8be8;
+  --color-secondary-content: #0b1020;
+  --color-accent: #e6c77a;
+  --color-accent-content: #0b1020;
+  --color-neutral: #27345a;
+  --color-neutral-content: #f1eadb;
+  --color-info: #5a8be8;
+  --color-info-content: #0b1020;
+  --color-success: #5dbb72;
+  --color-success-content: #0b1020;
+  --color-warning: #eba347;
+  --color-warning-content: #0b1020;
+  --color-error: #d0503f;
+  --color-error-content: #0b1020;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+
+  --muted: #aeb6cb;
+  --faint: #8089a3;
+  --line: #27345a;
+  --frame: #8f7238;
+  --hp: #d0503f;
+  --mana: #5a8be8;
+  --danger: #f5a497;
+  --class-warrior: #e0594c;
+  --class-ranger: #5dbb72;
+  --class-monk: #eba347;
+  --class-priest: #a98be8;
+  --class-fallback: #aeb6cb;
+}
+
+/*
+ * Make the extra tokens available as Tailwind utilities:
+ * text-muted, text-faint, border-line, border-frame, bg-hp, bg-mana, text-danger, bg-class …
+ * "inline" = utilities use var(--hp) directly, so the value follows the active theme.
+ */
+@theme inline {
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-frame: var(--frame);
+  --color-hp: var(--hp);
+  --color-mana: var(--mana);
+  --color-danger: var(--danger);
+  /* A component sets --class-color (e.g. var(--class-ranger)); unknown classes fall back. */
+  --color-class: var(--class-color, var(--class-fallback));
+}
+
+/* Fonts and fluid type (self-hosted via Fontsource, imported in main.tsx). */
+@theme {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-display: 'Cinzel', Georgia, serif;
+  --text-display: clamp(2rem, 1.4rem + 2.5vw, 3.5rem);
+}
+
+@layer base {
+  body {
+    @apply bg-base-100 font-sans text-base-content antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-wide;
+  }
+}
