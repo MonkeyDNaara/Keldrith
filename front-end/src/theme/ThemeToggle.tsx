@@ -1,12 +1,11 @@
-import { MoonIcon } from '../components/icons/MoonIcon';
-import { SunIcon } from '../components/icons/SunIcon';
+import { Moon, Sun } from 'lucide-react';
+import { t } from '../i18n';
 import { useTheme } from './useTheme';
 
 /** Icon button: shows the sun in dark mode and the moon in light mode (= the theme you switch to). */
 export function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme();
-  // TODO(#6): move the labels to src/i18n/en.ts
-  const label = isDark ? 'Switch to light theme' : 'Switch to dark theme';
+  const label = isDark ? t.theme.switchToLight : t.theme.switchToDark;
 
   return (
     <button
@@ -16,7 +15,7 @@ export function ThemeToggle() {
       aria-label={label}
       title={label}
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
+      {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
     </button>
   );
 }
