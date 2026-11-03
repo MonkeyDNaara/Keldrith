@@ -29,6 +29,21 @@ npm run dev    # http://localhost:5173
 | `npm run typecheck`    | Type-check only                                       |
 | `npm run check`        | Lint + format check + build – run this before each PR |
 
+## Routes
+
+| Path                              | Page                                                  | Access    |
+| --------------------------------- | ----------------------------------------------------- | --------- |
+| `/login`, `/register`             | Login / register                                      | public    |
+| `/`                               | Redirect: no character → create, else → the character | logged in |
+| `/characters/new`                 | Create character                                      | logged in |
+| `/characters/:characterId`        | Character detail                                      | logged in |
+| `/characters/:characterId/fight`  | Fight                                                 | logged in |
+| `/characters/:characterId/skills` | Skills                                                | logged in |
+| `/styleguide`                     | Token and component preview                           | dev only  |
+| `*`                               | Not found                                             | public    |
+
+Until the back-end is connected, login and character data are **mocked** (any email logs in).
+
 ## Folder structure
 
 Folders are created together with their first file.
@@ -42,6 +57,8 @@ src/
   i18n/               # all UI texts in one place
   api/                # API types, client and mocks
   auth/               # auth context and protected routes
+  hooks/              # data hooks (TanStack Query)
+  lib/                # app-wide setup (query client)
   components/
     layout/           # top bar, page layout
     ui/               # reusable UI parts (class badge, stat bar …)
