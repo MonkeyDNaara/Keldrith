@@ -44,8 +44,7 @@ src/
   auth/               # auth context and protected routes
   components/
     layout/           # top bar, page layout
-    ui/               # reusable UI parts (buttons, bars, cards)
-    icons/            # SVG icon components
+    ui/               # reusable UI parts (class badge, stat bar …)
   pages/              # one component per route
 ```
 
@@ -54,4 +53,7 @@ src/
 - **Exact dependency versions** (no `^`/`~`); `.npmrc` enforces `save-exact`.
 - **Formatting:** Prettier (`.prettierrc.json`); ESLint only checks code quality.
 - **Styling:** only theme colors and design tokens, never raw color values.
+- **Icons:** [Lucide](https://lucide.dev) (`lucide-react`); class icons are mapped in `src/game/classVisuals.ts`.
+- **Texts:** all UI texts live in `src/i18n/en.ts`; components use `t` from `src/i18n`.
+- **Game data is open:** class ids and stat keys come from the API as plain strings; unknown values render with a fallback.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/), e.g. `feat(front-end): …`.
