@@ -15,6 +15,11 @@ export interface UserDto {
   role: UserRole;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
 // ---- Characters ----
 
 /** `type` (not `interface`) so it can be passed where a Record<string, number> is expected. */
