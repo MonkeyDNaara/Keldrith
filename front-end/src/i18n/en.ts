@@ -7,6 +7,9 @@ export const en = {
   app: {
     name: 'Keldrith',
   },
+  common: {
+    loading: 'Loading…',
+  },
   theme: {
     switchToLight: 'Switch to light theme',
     switchToDark: 'Switch to dark theme',
