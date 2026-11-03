@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Keldrith – a turn-based browser RPG" />
     <title>Keldrith</title>
+    <script>
+      // Apply a saved theme before the first paint (no flash of the wrong theme).
+      // Without a saved choice, daisyUI follows the OS setting via prefers-color-scheme.
+      // Keep the key and theme names in sync with src/theme/useTheme.ts.
+      try {
+        const theme = localStorage.getItem('keldrith-theme');
+        if (theme === 'keldrith-dark' || theme === 'keldrith-light') {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch {
+        // localStorage blocked (e.g. privacy mode): fall back to the OS setting.
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
