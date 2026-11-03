@@ -10,6 +10,17 @@ export const en = {
   common: {
     loading: 'Loading…',
   },
+  nav: {
+    main: 'Main navigation',
+    openMenu: 'Open menu',
+    character: 'Character',
+    fight: 'Fight',
+    skills: 'Skills',
+    createCharacter: 'Create character',
+  },
+  auth: {
+    logout: 'Log out',
+  },
   theme: {
     switchToLight: 'Switch to light theme',
     switchToDark: 'Switch to dark theme',
