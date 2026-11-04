@@ -25,6 +25,11 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   unauthorizedHandler = handler;
 }
 
+/** Runs the registered handler. Also used by the mock API, so both behave the same. */
+export function notifyUnauthorized(): void {
+  unauthorizedHandler?.();
+}
+
 // ---- Core ----
 
 /**
@@ -69,7 +74,7 @@ export async function request<T>(
     // 401 with a token = token expired or invalid → log out. Without a token (e.g. wrong
     // password on login) it is just a failed request, the form shows the error.
     if (response.status === 401 && token) {
-      unauthorizedHandler?.();
+      notifyUnauthorized();
     }
     throw new ApiError(response.status, await readProblemDetails(response));
   }
