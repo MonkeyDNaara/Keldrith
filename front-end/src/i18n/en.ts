@@ -53,8 +53,6 @@ export const en = {
       demoDivider: 'or',
       demoSubmit: 'Use demo account',
       demoHint: 'Development only: logs in to the seeded demo account.',
-      mockHint: 'Logs in to the demo account (mock API, no back-end needed).',
-      mockSubmit: 'Log in (mock)',
       noAccount: 'No account yet?',
       toRegister: 'Register',
     },
