@@ -25,7 +25,7 @@ export const en = {
     comingSoon: 'This page is coming soon.',
     login: {
       title: 'Log in',
-      mockHint: 'Mock login: works without the back-end, no data is sent.',
+      mockHint: 'Logs in to the demo account (mock API, no back-end needed).',
       mockSubmit: 'Log in (mock)',
       noAccount: 'No account yet?',
       toRegister: 'Register',

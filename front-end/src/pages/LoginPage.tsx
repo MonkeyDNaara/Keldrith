@@ -1,4 +1,5 @@
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+import { DEMO_ACCOUNT } from '../api/mock/mockDb';
 import { useAuth } from '../auth/authContext';
 import type { LoginRedirectState } from '../auth/ProtectedRoute';
 import { t } from '../i18n';
@@ -17,7 +18,7 @@ export function LoginPage() {
   }
 
   async function handleMockLogin() {
-    await login({ email: 'niko@example.com', password: 'mock-password' });
+    await login({ ...DEMO_ACCOUNT });
     navigate(from, { replace: true });
   }
 

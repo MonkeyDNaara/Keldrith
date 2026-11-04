@@ -1,9 +1,12 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { api } from '../api';
+import { clearToken, saveToken } from '../api/tokenStorage';
 import type { LoginRequest, UserDto } from '../api/types';
 import { AuthContext, type AuthContextValue } from './authContext';
 
-// TODO(#11): replace the mock with the real API (POST /api/auth/login, token, GET /api/auth/me).
-// The mock keeps the user in sessionStorage, so a reload during development stays logged in.
+// TODO(#11): real auth state (GET /api/auth/me on start, 401 → logout, clear the query cache).
+// Bridge until then: login goes through the API layer and saves the token; the user is kept
+// in sessionStorage, so a reload during development stays logged in.
 const MOCK_STORAGE_KEY = 'keldrith-mock-user';
 
 function readMockUser(): UserDto | null {
@@ -27,22 +30,20 @@ function saveMockUser(user: UserDto | null) {
   }
 }
 
-/** Provides auth state to the whole app. Mock: every email/password combination logs in. */
+/** Provides auth state to the whole app. Bridge version: see the TODO above. */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(readMockUser);
 
-  const login = useCallback(async ({ email }: LoginRequest) => {
-    const mockUser: UserDto = {
-      userId: 1,
-      username: email.split('@')[0] || 'hero',
-      email,
-      role: 'User',
-    };
-    saveMockUser(mockUser);
-    setUser(mockUser);
+  const login = useCallback(async (credentials: LoginRequest) => {
+    // Rejects with an ApiError (e.g. 401) → the caller shows it.
+    const { token, expiresAt, user: loggedInUser } = await api.auth.login(credentials);
+    saveToken(token, expiresAt);
+    saveMockUser(loggedInUser);
+    setUser(loggedInUser);
   }, []);
 
   const logout = useCallback(() => {
+    clearToken();
     saveMockUser(null);
     setUser(null);
   }, []);
