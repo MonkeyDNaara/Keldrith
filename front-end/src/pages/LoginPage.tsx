@@ -1,5 +1,5 @@
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
-import { DEMO_ACCOUNT } from '../api/mock/mockDb';
+import { DEMO_ACCOUNT } from '../auth/demoAccount';
 import { useAuth } from '../auth/authContext';
 import type { LoginRedirectState } from '../auth/ProtectedRoute';
 import { t } from '../i18n';
