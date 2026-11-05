@@ -9,6 +9,7 @@ import type { LoginRedirectState } from '../auth/ProtectedRoute';
 import { FormAlert } from '../components/ui/FormAlert';
 import { FormField } from '../components/ui/FormField';
 import { PasswordField } from '../components/ui/PasswordField';
+import { SubmitButton } from '../components/ui/SubmitButton';
 import { t } from '../i18n';
 
 export function LoginPage() {
@@ -72,12 +73,11 @@ export function LoginPage() {
           {...register('password')}
         />
 
-        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-          {isSubmitting && (
-            <span className="loading loading-sm loading-spinner" aria-hidden="true" />
-          )}
-          {isSubmitting ? t.pages.login.submitting : t.pages.login.submit}
-        </button>
+        <SubmitButton
+          label={t.pages.login.submit}
+          pendingLabel={t.pages.login.submitting}
+          isPending={isSubmitting}
+        />
       </form>
 
       {SHOW_DEMO_LOGIN && (
