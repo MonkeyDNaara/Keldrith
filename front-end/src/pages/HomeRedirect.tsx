@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router';
+import { PageSpinner } from '../components/ui/PageSpinner';
 import { useMyCharacter } from '../hooks/useMyCharacter';
 import { t } from '../i18n';
 
@@ -7,14 +8,7 @@ export function HomeRedirect() {
   const { data: character, isPending, isError, refetch } = useMyCharacter();
 
   if (isPending) {
-    return (
-      <div className="grid flex-1 place-items-center">
-        <span
-          className="loading loading-lg loading-spinner text-primary"
-          aria-label={t.common.loading}
-        />
-      </div>
-    );
+    return <PageSpinner />;
   }
 
   if (isError) {
