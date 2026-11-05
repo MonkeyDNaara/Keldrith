@@ -79,7 +79,10 @@ export const en = {
       loadError: 'Your character could not be loaded.',
       retry: 'Try again',
     },
-    createCharacter: { title: 'Create your hero' },
+    createCharacter: {
+      title: 'Create your hero',
+      roles: 'Roles',
+    },
     characterDetail: { title: 'Your hero' },
     fight: { title: 'Fight' },
     skills: { title: 'Skills' },
