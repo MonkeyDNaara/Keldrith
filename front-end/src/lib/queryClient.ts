@@ -27,4 +27,5 @@ export const queryClient = new QueryClient({
  */
 export const queryKeys = {
   myCharacter: ['characters', 'mine'] as const,
+  classes: ['classes'] as const,
 };
