@@ -1,3 +1,4 @@
+import { DEMO_ACCOUNT } from '../../auth/demoAccount';
 import type { UserDto } from '../types';
 
 /**
@@ -36,9 +37,6 @@ export interface MockDbState {
 
 const STORAGE_KEY = 'keldrith-mock-db';
 const DB_VERSION = 1;
-
-/** Demo login for development and the presentation. */
-export const DEMO_ACCOUNT = { email: 'demo@keldrith.dev', password: 'demo-password' } as const;
 
 function createInitialState(): MockDbState {
   return {
