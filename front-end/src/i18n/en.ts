@@ -32,6 +32,7 @@ export const en = {
     passwordMin: (min: number) => `Password must be at least ${min} characters.`,
     passwordRequired: 'Please enter your password.',
     passwordsMismatch: 'Passwords do not match.',
+    characterNameLength: (min: number, max: number) => `Name must be ${min}–${max} characters.`,
   },
   /** Own texts for server errors: server messages may be technical or in another language. */
   authErrors: {
@@ -39,6 +40,13 @@ export const en = {
     usernameOrEmailTaken: 'This username or email is already taken.',
     usernameTaken: 'This username is already taken.',
     emailTaken: 'This email is already registered.',
+    network: 'The server cannot be reached. Please try again later.',
+    unexpected: 'Something went wrong. Please try again.',
+  },
+  characterErrors: {
+    alreadyHasCharacter: 'You already have a hero.',
+    notFound: 'This hero does not exist (anymore).',
+    invalidClass: 'This class is not available. Please pick another one.',
     network: 'The server cannot be reached. Please try again later.',
     unexpected: 'Something went wrong. Please try again.',
   },
