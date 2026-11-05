@@ -6,6 +6,7 @@ import { useAuth } from '../auth/authContext';
 import { loginSchema, type LoginFormValues } from '../auth/authSchemas';
 import { DEMO_ACCOUNT, SHOW_DEMO_LOGIN } from '../auth/demoAccount';
 import type { LoginRedirectState } from '../auth/ProtectedRoute';
+import { FormAlert } from '../components/ui/FormAlert';
 import { FormField } from '../components/ui/FormField';
 import { PasswordField } from '../components/ui/PasswordField';
 import { t } from '../i18n';
@@ -55,11 +56,7 @@ export function LoginPage() {
 
       {/* noValidate: zod validates, not the browser's own bubbles (consistent texts). */}
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        {errors.root?.server && (
-          <div role="alert" className="alert alert-soft text-sm alert-error">
-            {errors.root.server.message}
-          </div>
-        )}
+        <FormAlert>{errors.root?.server?.message}</FormAlert>
 
         <FormField
           label={t.pages.login.email}

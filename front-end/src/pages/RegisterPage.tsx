@@ -9,6 +9,7 @@ import {
   toRegisterRequest,
   type RegisterFormValues,
 } from '../auth/authSchemas';
+import { FormAlert } from '../components/ui/FormAlert';
 import { FormField } from '../components/ui/FormField';
 import { PasswordField } from '../components/ui/PasswordField';
 import { t } from '../i18n';
@@ -45,11 +46,7 @@ export function RegisterPage() {
       <h2 className="text-2xl">{t.pages.register.title}</h2>
 
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        {errors.root?.server && (
-          <div role="alert" className="alert alert-soft text-sm alert-error">
-            {errors.root.server.message}
-          </div>
-        )}
+        <FormAlert>{errors.root?.server?.message}</FormAlert>
 
         <FormField
           label={t.pages.register.username}
