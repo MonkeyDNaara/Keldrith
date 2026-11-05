@@ -89,6 +89,13 @@ export const en = {
     level: (level: number) => `Level ${level}`,
     xp: 'XP',
   },
+  /** Class roles (ClassDto.roles). Unknown roles fall back to a humanized key. */
+  roles: {
+    MeleeDps: 'Melee DPS',
+    RangedDps: 'Ranged DPS',
+    Tank: 'Tank',
+    Healer: 'Healer',
+  },
   stats: {
     maxHp: 'HP',
     maxMana: 'Mana',

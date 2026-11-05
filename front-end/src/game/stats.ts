@@ -1,4 +1,5 @@
 import { t } from '../i18n';
+import { humanize } from '../lib/humanize';
 
 /** Color variants a stat bar can have (see StatBar). */
 export type BarColor = 'hp' | 'mana' | 'xp' | 'class';
@@ -27,12 +28,6 @@ const STAT_META: Partial<Record<string, StatMeta>> = {
 
 /** Unknown stats are listed after the known ones. */
 const UNKNOWN_ORDER = Number.MAX_SAFE_INTEGER;
-
-/** "critChance" → "Crit Chance": readable label for a stat we have no text for yet. */
-function humanize(key: string): string {
-  const spaced = key.replace(/([A-Z])/g, ' $1');
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-}
 
 function getStatMeta(key: string): StatMeta {
   return STAT_META[key] ?? { label: humanize(key), order: UNKNOWN_ORDER };
