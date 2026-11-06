@@ -1,8 +1,8 @@
 import type { ClassDto } from '../../api/types';
 import { classColorStyle, getClassVisual } from '../../game/classVisuals';
 import { getRoleLabel } from '../../game/roles';
-import { getStatEntries } from '../../game/stats';
 import { t } from '../../i18n';
+import { StatList } from '../ui/StatList';
 
 interface ClassCardProps {
   playerClass: ClassDto;
@@ -51,14 +51,7 @@ export function ClassCard({ playerClass, groupName, checked, onSelect }: ClassCa
         ))}
       </span>
 
-      <dl className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-x-3 gap-y-1 text-sm">
-        {getStatEntries(baseStats).map((stat) => (
-          <div key={stat.key} className="flex justify-between gap-2">
-            <dt className="truncate text-faint">{stat.label}</dt>
-            <dd className="tabular-nums">{stat.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <StatList stats={baseStats} />
     </label>
   );
 }

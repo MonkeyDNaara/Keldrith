@@ -112,6 +112,18 @@ export const en = {
   character: {
     level: (level: number) => `Level ${level}`,
     xp: 'XP',
+    stats: 'Stats',
+    skillPoints: 'Skill points',
+    learnSkills: 'Learn skills',
+    learnedSkills: 'Learned skills',
+    noSkills: 'No skills learned yet. Spend skill points to unlock them.',
+    power: 'Power',
+    manaCost: 'Mana',
+  },
+  skillTypes: {
+    Damage: 'Damage',
+    Heal: 'Heal',
+    Buff: 'Buff',
   },
   /** Class roles (ClassDto.roles). Unknown roles fall back to a humanized key. */
   roles: {
