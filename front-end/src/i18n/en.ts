@@ -119,6 +119,11 @@ export const en = {
     noSkills: 'No skills learned yet. Spend skill points to unlock them.',
     power: 'Power',
     manaCost: 'Mana',
+    name: 'Name',
+    rename: 'Rename hero',
+    save: 'Save',
+    saving: 'Saving…',
+    cancel: 'Cancel',
   },
   skillTypes: {
     Damage: 'Damage',
