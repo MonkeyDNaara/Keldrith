@@ -22,6 +22,11 @@ function formMessage(error: ApiError): string {
   }
 }
 
+/** Message for a failed character request outside a form (e.g. the delete dialog). */
+export function characterErrorMessage(error: unknown): string {
+  return isApiError(error) ? formMessage(error) : t.characterErrors.unexpected;
+}
+
 /**
  * Shows a failed create / rename in the name form (react-hook-form).
  * 400 on `name` → under the field · 400 on `classId` → form-wide (no class field in this step)

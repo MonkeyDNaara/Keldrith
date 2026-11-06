@@ -124,6 +124,12 @@ export const en = {
     save: 'Save',
     saving: 'Saving…',
     cancel: 'Cancel',
+    delete: 'Delete hero',
+    deleteTitle: (name: string) => `Delete ${name}?`,
+    deleteText: 'This cannot be undone. Level, XP and learned skills are lost.',
+    deleteConfirm: 'Delete',
+    deleting: 'Deleting…',
+    closeDialog: 'Close',
   },
   skillTypes: {
     Damage: 'Damage',
