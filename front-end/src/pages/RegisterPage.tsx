@@ -9,8 +9,10 @@ import {
   toRegisterRequest,
   type RegisterFormValues,
 } from '../auth/authSchemas';
+import { FormAlert } from '../components/ui/FormAlert';
 import { FormField } from '../components/ui/FormField';
 import { PasswordField } from '../components/ui/PasswordField';
+import { SubmitButton } from '../components/ui/SubmitButton';
 import { t } from '../i18n';
 
 export function RegisterPage() {
@@ -45,11 +47,7 @@ export function RegisterPage() {
       <h2 className="text-2xl">{t.pages.register.title}</h2>
 
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        {errors.root?.server && (
-          <div role="alert" className="alert alert-soft text-sm alert-error">
-            {errors.root.server.message}
-          </div>
-        )}
+        <FormAlert>{errors.root?.server?.message}</FormAlert>
 
         <FormField
           label={t.pages.register.username}
@@ -78,12 +76,11 @@ export function RegisterPage() {
           {...register('confirmPassword')}
         />
 
-        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-          {isSubmitting && (
-            <span className="loading loading-sm loading-spinner" aria-hidden="true" />
-          )}
-          {isSubmitting ? t.pages.register.submitting : t.pages.register.submit}
-        </button>
+        <SubmitButton
+          label={t.pages.register.submit}
+          pendingLabel={t.pages.register.submitting}
+          isPending={isSubmitting}
+        />
       </form>
 
       <p className="text-sm text-muted">

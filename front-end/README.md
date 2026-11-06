@@ -104,6 +104,30 @@ any request ─► 401 with a token ─► logout: token removed + query cache c
   logs in to `demo@keldrith.dev` / `demo-password`. The mock API seeds this account; the
   back-end must seed the same one in development (never in production).
 
+## Character
+
+One character per user. All character data comes from the API through hooks
+(`useMyCharacter`, `useClasses`, `useCharacterMutations`), so the pages never change when
+switching from mocks to the real back-end.
+
+```
+/ ─► HomeRedirect ─┬─ no character ─► /characters/new  (wizard: class → name)
+                   └─ character    ─► /characters/:id  (overview, skills, rename, delete)
+
+create / rename ─► server answer replaces the cached character (top bar updates at once)
+delete          ─► cache = null ─► detail page redirects to the wizard
+```
+
+- **Wizard** (`pages/CreateCharacterPage.tsx`): classes are loaded from `GET /api/classes`
+  (unknown classes get fallback visuals); roles are info only. A radio group of class cards
+  (keyboard: arrow keys), then the name form. A user who already has a character is sent to
+  the detail page; a 409 shows its own message with a link to the existing hero.
+- **Detail** (`pages/CharacterDetailPage.tsx`): level, XP bar, skill points, stats and learned
+  skills — only values from the server, nothing is computed here. Rename inline (Esc cancels),
+  delete in a native `<dialog>` with confirmation. An invalid or foreign id shows "not found".
+- **Forms:** one zod schema for the name (`character/characterSchemas.ts`); server errors are
+  mapped in `character/applyCharacterError.ts`.
+
 ## Folder structure
 
 Folders are created together with their first file.
@@ -117,11 +141,13 @@ src/
   i18n/               # all UI texts in one place
   api/                # API layer: types, client, HTTP + mock implementation
   auth/               # auth state, protected routes, form schemas, demo account
+  character/          # character form schema and error mapping
   hooks/              # data hooks (TanStack Query)
-  lib/                # app-wide setup (query client)
+  lib/                # app-wide setup and helpers (query client, humanize)
   components/
     layout/           # top bar, page layout
-    ui/               # reusable UI parts (class badge, stat bar …)
+    character/        # character parts (class card, overview, rename, delete dialog …)
+    ui/               # reusable UI parts (class badge, stat bar, form alert, submit button …)
   pages/              # one component per route
 ```
 
