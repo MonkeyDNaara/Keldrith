@@ -96,7 +96,13 @@ export const en = {
       retry: 'Try again',
       goToHero: 'Go to your hero',
     },
-    characterDetail: { title: 'Your hero' },
+    characterDetail: {
+      title: 'Your hero',
+      loadError: 'Your hero could not be loaded.',
+      retry: 'Try again',
+      backToHero: 'Back to your hero',
+      fight: 'Start a fight',
+    },
     fight: { title: 'Fight' },
     skills: { title: 'Skills' },
     notFound: {
