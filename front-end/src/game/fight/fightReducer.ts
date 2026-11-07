@@ -1,7 +1,16 @@
 import type { MonsterDto, PlayerCharacterDto } from '../../api/types';
-import { createCombatant } from './combatants';
-import { getNextActor, startTimeline } from './turnOrder';
-import type { Combatant, FightState, Side } from './types';
+import { calculateDamage } from './calc';
+import { createCombatant, getAttack } from './combatants';
+import { getNextActor, scheduleNextAction, startTimeline } from './turnOrder';
+import type {
+  Combatant,
+  FightAction,
+  FightEvent,
+  FightState,
+  Rng,
+  Side,
+  TurnChoice,
+} from './types';
 
 /**
  * Starts a fight: both fighters at full HP and mana, put on the turn timeline.
@@ -30,4 +39,111 @@ export function getCombatant(state: FightState, side: Side): Combatant {
     throw new Error(`No combatant on side "${side}"`);
   }
   return found;
+}
+
+function opponentOf(side: Side): Side {
+  return side === 'player' ? 'monster' : 'player';
+}
+
+/** A copy of the list where only the combatant of `side` is replaced by `change(it)`. */
+function updateSide(
+  combatants: readonly Combatant[],
+  side: Side,
+  change: (combatant: Combatant) => Combatant,
+): Combatant[] {
+  return combatants.map((c) => (c.side === side ? change(c) : c));
+}
+
+/** What one chosen action changed: the new fighters and what happened (for the log). */
+interface TurnOutcome {
+  combatants: Combatant[];
+  events: FightEvent[];
+}
+
+function resolveAttack(state: FightState, side: Side, rng: Rng): TurnOutcome {
+  const attacker = getCombatant(state, side);
+  const target = getCombatant(state, opponentOf(side));
+  const amount = calculateDamage(
+    {
+      attack: getAttack(attacker),
+      power: 0,
+      defense: target.base.stats.defense,
+      targetDefending: target.defending,
+    },
+    rng,
+  );
+  return {
+    combatants: updateSide(state.combatants, target.side, (c) => ({
+      ...c,
+      hp: Math.max(0, c.hp - amount),
+    })),
+    events: [{ type: 'damage', actor: side, target: target.side, amount }],
+  };
+}
+
+function resolveDefend(state: FightState, side: Side): TurnOutcome {
+  return {
+    combatants: updateSide(state.combatants, side, (c) => ({ ...c, defending: true })),
+    events: [{ type: 'defend', actor: side }],
+  };
+}
+
+/** Plays out the choice. `undefined` means: not possible, nothing happens. */
+function resolveChoice(
+  state: FightState,
+  side: Side,
+  choice: TurnChoice,
+  rng: Rng,
+): TurnOutcome | undefined {
+  switch (choice.type) {
+    case 'attack':
+      return resolveAttack(state, side, rng);
+    case 'defend':
+      return resolveDefend(state, side);
+    case 'skill':
+      return undefined; // Skills are not supported yet.
+  }
+}
+
+/** One turn of one side: resolve the choice, then move the timeline on to the next actor. */
+function takeTurn(state: FightState, side: Side, choice: TurnChoice, rng: Rng): FightState {
+  // A defend from the last turn ends when the combatant acts again.
+  const ready: FightState = {
+    ...state,
+    combatants: updateSide(state.combatants, side, (c) => ({ ...c, defending: false })),
+  };
+  const outcome = resolveChoice(ready, side, choice, rng);
+  if (outcome === undefined) {
+    return state;
+  }
+
+  const combatants = updateSide(outcome.combatants, side, scheduleNextAction);
+  return {
+    ...state,
+    combatants,
+    active: getNextActor(combatants)?.side ?? state.active,
+    turn: state.turn + 1,
+    log: [...state.log, ...outcome.events],
+  };
+}
+
+export type FightReducer = (state: FightState, action: FightAction) => FightState;
+
+/**
+ * The reducer for `useReducer`. `rng` is injected: `Math.random` in the app, fixed numbers in tests.
+ * It never changes the old state and never throws: an action that is not allowed right now
+ * (wrong turn, fight over, ...) returns the very same state object.
+ */
+export function createFightReducer(rng: Rng): FightReducer {
+  return (state, action) => {
+    if (state.status !== 'Running') {
+      return state;
+    }
+    switch (action.type) {
+      case 'playerTurn':
+        return state.active === 'player' ? takeTurn(state, 'player', action.choice, rng) : state;
+      default:
+        return state; // Monster turn and flee are not supported yet.
+    }
+  };
 }
