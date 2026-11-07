@@ -18,16 +18,18 @@ npm run dev    # http://localhost:5173
 
 ## Scripts
 
-| Script                 | What it does                                          |
-| ---------------------- | ----------------------------------------------------- |
-| `npm run dev`          | Start the dev server with hot reload                  |
-| `npm run build`        | Type-check and build for production into `dist/`      |
-| `npm run preview`      | Serve the production build locally                    |
-| `npm run lint`         | Lint all files with ESLint                            |
-| `npm run format`       | Format all files with Prettier                        |
-| `npm run format:check` | Check formatting without changing files               |
-| `npm run typecheck`    | Type-check only                                       |
-| `npm run check`        | Lint + format check + build – run this before each PR |
+| Script                 | What it does                                         |
+| ---------------------- | ---------------------------------------------------- |
+| `npm run dev`          | Start the dev server with hot reload                 |
+| `npm run build`        | Type-check and build for production into `dist/`     |
+| `npm run preview`      | Serve the production build locally                   |
+| `npm run lint`         | Lint all files with ESLint                           |
+| `npm run format`       | Format all files with Prettier                       |
+| `npm run format:check` | Check formatting without changing files              |
+| `npm run typecheck`    | Type-check only                                      |
+| `npm run test`         | Run the unit tests once (Vitest)                     |
+| `npm run test:watch`   | Run the tests again on every change                  |
+| `npm run check`        | Lint + format check + tests + build – before each PR |
 
 ## Routes
 
@@ -128,6 +130,51 @@ delete          ─► cache = null ─► detail page redirects to the wizard
 - **Forms:** one zod schema for the name (`character/characterSchemas.ts`); server errors are
   mapped in `character/applyCharacterError.ts`.
 
+## Fight engine
+
+`src/game/fight/` is a pure TypeScript engine (no React, no browser APIs) that plays a 1-vs-1
+fight as a reducer. The fight screen drives it with `useReducer`; the API only receives the
+outcome. Import from `game/fight` (the `index.ts`) only.
+
+```ts
+const reducer = createFightReducer(Math.random); // create once; tests pass fixed numbers instead
+let state = createFight(character, monster); // both at full HP and mana
+
+state = reducer(state, { type: 'playerTurn', choice: { type: 'attack' } });
+state = reducer(state, { type: 'monsterTurn' }); // when state.active === 'monster'
+// state.status: 'Running' | 'Won' | 'Lost' | 'Fled' (same values as the fight result request)
+// state.turn: number of actions of both sides (the `turns` of the request)
+```
+
+- **Turn order by speed:** every fighter has a point on a timeline (`nextActionAt`); the smallest
+  value acts next and then moves back by `10000 / speed`. Speed 9 against 4 means about 2.25
+  actions per action of the slower one. The order is derived, never stored, so a changed speed
+  (`speedBonus`) is picked up from the next interval on. `previewTurnOrder` lists the next actors.
+- **Actions** (both sides): attack, defend, skill (costs mana). The player can also flee.
+- **Damage:** `max(1, attack + bonus + power - defense)` with ±10 % variance. A normal attack has
+  power 0. Defending halves incoming damage until the fighter's next turn.
+- **Skills:** `Damage` hits the opponent, `Heal` restores own HP (never above max HP), `Buff` raises
+  own attack for the rest of the fight.
+- **Monster AI:** with 30 % chance it uses a random skill it can pay for (no heal at full HP),
+  otherwise it attacks.
+- **Outcome:** `Won` / `Lost` at 0 HP, `Fled` when the player flees. After that every action is
+  ignored.
+- **Pure and testable:** the random number function is injected, the old state is never changed,
+  and an action that is not allowed right now (wrong turn, not enough mana, fight over) returns the
+  very same state. The log holds data events (`FightEvent`), not texts: the UI turns them into text.
+- **Tests** live next to the code (`*.test.ts`); `npm run test` runs them. Balance numbers are in
+  `game/fight/rules.ts`.
+
+| File              | Content                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| `types.ts`        | `Combatant`, `FightState`, `FightAction`, `FightEvent` …       |
+| `rules.ts`        | balance numbers (variance, defend factor, AI chance, time)     |
+| `calc.ts`         | damage, heal and mana calculations                             |
+| `combatants.ts`   | creating a fighter, attack including buffs                     |
+| `turnOrder.ts`    | speed-based timeline: next actor, preview                      |
+| `monsterAi.ts`    | what a monster does on its turn                                |
+| `fightReducer.ts` | `createFight`, `createFightReducer` (attack, defend, skills …) |
+
 ## Folder structure
 
 Folders are created together with their first file.
@@ -138,6 +185,7 @@ src/
   styles/             # global styles, Tailwind + daisyUI themes (design tokens)
   theme/              # dark/light theme hook and toggle
   game/               # data-driven registries (classes, stats) with fallbacks
+    fight/            # pure fight engine (reducer) with its tests
   i18n/               # all UI texts in one place
   api/                # API layer: types, client, HTTP + mock implementation
   auth/               # auth state, protected routes, form schemas, demo account
