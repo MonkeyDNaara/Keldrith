@@ -1,12 +1,14 @@
 import type { MonsterDto, PlayerCharacterDto, SkillBase } from '../../api/types';
 import { calculateDamage, calculateHeal, canUseSkill } from './calc';
-import { createCombatant, getAttack } from './combatants';
+import { createCombatant, getAttack, isAlive } from './combatants';
+import { chooseMonsterAction } from './monsterAi';
 import { getNextActor, scheduleNextAction, startTimeline } from './turnOrder';
 import type {
   Combatant,
   FightAction,
   FightEvent,
   FightState,
+  FightStatus,
   Rng,
   Side,
   TurnChoice,
@@ -165,6 +167,13 @@ function resolveChoice(
   }
 }
 
+/** The fight is over as soon as one side has no HP left: no player = lost, no monster = won. */
+function getStatus(combatants: readonly Combatant[]): FightStatus {
+  const defeated = combatants.find((c) => !isAlive(c));
+  if (defeated === undefined) return 'Running';
+  return defeated.side === 'player' ? 'Lost' : 'Won';
+}
+
 /** One turn of one side: resolve the choice, then move the timeline on to the next actor. */
 function takeTurn(state: FightState, side: Side, choice: TurnChoice, rng: Rng): FightState {
   // A defend from the last turn ends when the combatant acts again.
@@ -178,12 +187,28 @@ function takeTurn(state: FightState, side: Side, choice: TurnChoice, rng: Rng): 
   }
 
   const combatants = updateSide(outcome.combatants, side, scheduleNextAction);
+  const events: FightEvent[] = [...outcome.events];
+  const defeated = combatants.find((c) => !isAlive(c));
+  if (defeated !== undefined) {
+    events.push({ type: 'defeated', side: defeated.side });
+  }
   return {
     ...state,
     combatants,
     active: getNextActor(combatants)?.side ?? state.active,
     turn: state.turn + 1,
-    log: [...state.log, ...outcome.events],
+    status: getStatus(combatants),
+    log: [...state.log, ...events],
+  };
+}
+
+/** The player runs away: the fight ends at once with the outcome `Fled`. */
+function flee(state: FightState): FightState {
+  return {
+    ...state,
+    turn: state.turn + 1,
+    status: 'Fled',
+    log: [...state.log, { type: 'fled', actor: 'player' }],
   };
 }
 
@@ -202,8 +227,17 @@ export function createFightReducer(rng: Rng): FightReducer {
     switch (action.type) {
       case 'playerTurn':
         return state.active === 'player' ? takeTurn(state, 'player', action.choice, rng) : state;
-      default:
-        return state; // Monster turn and flee are not supported yet.
+      case 'monsterTurn':
+        return state.active === 'monster'
+          ? takeTurn(
+              state,
+              'monster',
+              chooseMonsterAction(getCombatant(state, 'monster'), rng),
+              rng,
+            )
+          : state;
+      case 'flee':
+        return state.active === 'player' ? flee(state) : state;
     }
   };
 }

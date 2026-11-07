@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SEED_MONSTERS, SEED_PLAYER_SKILLS } from '../../api/mock/seed';
 import type { PlayerSkillDto } from '../../api/types';
 import { createFight, createFightReducer, getCombatant } from './fightReducer';
-import { fixedRng, makePlayer } from './testUtils';
+import { fixedRng, makePlayer, sequenceRng } from './testUtils';
 import type { Combatant, FightState, Side } from './types';
 
 const [goblin, wolf] = SEED_MONSTERS;
@@ -240,5 +240,125 @@ describe('fightReducer: skills', () => {
       const after = reducer(buffed, { type: 'playerTurn', choice: { type: 'attack' } });
       expect(getCombatant(after, 'monster').hp).toBe(46); // 14 + 5 - 5 = 14
     });
+  });
+});
+
+describe('fightReducer: monster turn', () => {
+  // The wolf is faster than the player, so the monster starts.
+  const wolfFight = createFight(makePlayer(), wolf);
+  const monsterTurn = { type: 'monsterTurn' } as const;
+
+  it('attacks when the AI chance roll is high, then rolls the damage', () => {
+    const reducer = createFightReducer(sequenceRng([0.9, 0.5]));
+    const after = reducer(wolfFight, monsterTurn);
+    // wolf attack 12 - player defense 10 = 2
+    expect(getCombatant(after, 'player').hp).toBe(118);
+    expect(after.log).toEqual([{ type: 'damage', actor: 'monster', target: 'player', amount: 2 }]);
+    expect(after.turn).toBe(1);
+    expect(after.active).toBe('player'); // wolf next at 1538, player at 1250
+  });
+
+  it('can use a damage skill (bite: power 6, 5 mana)', () => {
+    const reducer = createFightReducer(sequenceRng([0.1, 0, 0.5]));
+    const after = reducer(wolfFight, monsterTurn);
+    expect(getCombatant(after, 'player').hp).toBe(112); // 12 + 6 - 10 = 8
+    expect(getCombatant(after, 'monster').mana).toBe(10);
+    expect(after.log).toEqual([
+      { type: 'damage', actor: 'monster', target: 'player', amount: 8, skillName: 'Bite' },
+    ]);
+  });
+
+  it('can use a buff skill (howl: +3 attack, 10 mana)', () => {
+    const reducer = createFightReducer(sequenceRng([0.1, 0.99]));
+    const after = reducer(wolfFight, monsterTurn);
+    expect(getCombatant(after, 'monster').attackBonus).toBe(3);
+    expect(getCombatant(after, 'monster').mana).toBe(5);
+    expect(after.log).toEqual([
+      { type: 'buff', actor: 'monster', attackGained: 3, skillName: 'Howl' },
+    ]);
+  });
+
+  it("is ignored when it is the player's turn", () => {
+    const reducer = createFightReducer(sequenceRng([]));
+    const fight = createFight(makePlayer(), goblin);
+    expect(fight.active).toBe('player');
+    expect(reducer(fight, monsterTurn)).toBe(fight);
+  });
+
+  it('hits a defending player for half the damage', () => {
+    const strong = { ...goblin, stats: { ...goblin.stats, attack: 30 } }; // 30 - 10 = 20
+    const start = createFight(makePlayer(), strong); // player is faster (8 vs 7)
+    const defend = { type: 'playerTurn', choice: { type: 'defend' } } as const;
+
+    const withDefend = createFightReducer(sequenceRng([0.9, 0.5]));
+    const defended = withDefend(withDefend(start, defend), monsterTurn);
+    expect(getCombatant(defended, 'player').hp).toBe(110); // 120 - 10
+
+    const attack = { type: 'playerTurn', choice: { type: 'attack' } } as const;
+    const withAttack = createFightReducer(sequenceRng([0.5, 0.9, 0.5]));
+    const open = withAttack(withAttack(start, attack), monsterTurn);
+    expect(getCombatant(open, 'player').hp).toBe(100); // 120 - 20
+  });
+});
+
+describe('fightReducer: outcomes', () => {
+  const attack = { type: 'playerTurn', choice: { type: 'attack' } } as const;
+  const monsterTurn = { type: 'monsterTurn' } as const;
+
+  function withHp(fight: FightState, side: Side, hp: number): FightState {
+    return {
+      ...fight,
+      combatants: fight.combatants.map((c) => (c.side === side ? { ...c, hp } : c)),
+    };
+  }
+
+  it('is won when the monster reaches 0 HP', () => {
+    const reducer = createFightReducer(fixedRng(0.5));
+    const fight = withHp(createFight(makePlayer(), goblin), 'monster', 3);
+    const after = reducer(fight, attack);
+    expect(after.status).toBe('Won');
+    expect(after.log.at(-1)).toEqual({ type: 'defeated', side: 'monster' });
+    expect(after.turn).toBe(1);
+  });
+
+  it('is lost when the player reaches 0 HP', () => {
+    const reducer = createFightReducer(sequenceRng([0.9, 0.5]));
+    const fight = withHp(createFight(makePlayer(), wolf), 'player', 1);
+    const after = reducer(fight, monsterTurn);
+    expect(after.status).toBe('Lost');
+    expect(after.log.at(-1)).toEqual({ type: 'defeated', side: 'player' });
+  });
+
+  it('is won with a damage skill too', () => {
+    const bash = SEED_PLAYER_SKILLS[0];
+    const reducer = createFightReducer(fixedRng(0.5));
+    const fight = withHp(createFight(makePlayer({ learnedSkills: [bash] }), goblin), 'monster', 10);
+    const after = reducer(fight, {
+      type: 'playerTurn',
+      choice: { type: 'skill', skillId: 'shield-bash' },
+    });
+    expect(after.status).toBe('Won');
+  });
+
+  it('is fled when the player flees, and counts as an action', () => {
+    const reducer = createFightReducer(fixedRng(0.5));
+    const after = reducer(createFight(makePlayer(), goblin), { type: 'flee' });
+    expect(after.status).toBe('Fled');
+    expect(after.turn).toBe(1);
+    expect(after.log).toEqual([{ type: 'fled', actor: 'player' }]);
+  });
+
+  it("cannot flee on the monster's turn", () => {
+    const reducer = createFightReducer(fixedRng(0.5));
+    const fight = createFight(makePlayer(), wolf);
+    expect(reducer(fight, { type: 'flee' })).toBe(fight);
+  });
+
+  it('accepts no more actions once the fight is over', () => {
+    const reducer = createFightReducer(fixedRng(0.5));
+    const won = reducer(withHp(createFight(makePlayer(), goblin), 'monster', 3), attack);
+    expect(reducer(won, attack)).toBe(won);
+    expect(reducer(won, monsterTurn)).toBe(won);
+    expect(reducer(won, { type: 'flee' })).toBe(won);
   });
 });
