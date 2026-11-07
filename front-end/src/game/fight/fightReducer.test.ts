@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { SEED_MONSTERS, SEED_PLAYER_SKILLS } from '../../api/mock/seed';
+import type { PlayerSkillDto } from '../../api/types';
 import { createFight, createFightReducer, getCombatant } from './fightReducer';
 import { fixedRng, makePlayer } from './testUtils';
-import type { FightState } from './types';
+import type { Combatant, FightState, Side } from './types';
 
 const [goblin, wolf] = SEED_MONSTERS;
 const shieldBash = SEED_PLAYER_SKILLS[0];
@@ -145,5 +146,99 @@ describe('fightReducer: actions that are not allowed', () => {
     const fight = createFight(makePlayer(), goblin);
     const unknown = { type: 'playerTurn', choice: { type: 'skill', skillId: 'nope' } } as const;
     expect(reducer(fight, unknown)).toBe(fight);
+  });
+});
+
+describe('fightReducer: skills', () => {
+  const reducer = createFightReducer(fixedRng(0.5));
+
+  function seedSkill(skillId: string): PlayerSkillDto {
+    const skill = SEED_PLAYER_SKILLS.find((s) => s.skillId === skillId);
+    if (skill === undefined) throw new Error(`Unknown seed skill: ${skillId}`);
+    return skill;
+  }
+
+  function useSkill(skillId: string) {
+    return { type: 'playerTurn', choice: { type: 'skill', skillId } } as const;
+  }
+
+  function withCombatant(fight: FightState, side: Side, changes: Partial<Combatant>): FightState {
+    return {
+      ...fight,
+      combatants: fight.combatants.map((c) => (c.side === side ? { ...c, ...changes } : c)),
+    };
+  }
+
+  const fastPlayer = (skills: PlayerSkillDto[]) =>
+    makePlayer({ stats: { ...makePlayer().stats, speed: 20 }, learnedSkills: skills });
+
+  describe('damage skill', () => {
+    const fight = createFight(makePlayer({ learnedSkills: [seedSkill('shield-bash')] }), goblin);
+
+    it('hits with attack + power - defense, pays the mana and logs the skill name', () => {
+      const after = reducer(fight, useSkill('shield-bash'));
+      // attack 14 + power 8 - defense 5 = 17
+      expect(getCombatant(after, 'monster').hp).toBe(43);
+      expect(getCombatant(after, 'player').mana).toBe(20); // 30 - 10
+      expect(after.log).toEqual([
+        {
+          type: 'damage',
+          actor: 'player',
+          target: 'monster',
+          amount: 17,
+          skillName: 'Shield Bash',
+        },
+      ]);
+      expect(after.turn).toBe(1);
+    });
+
+    it('works with exactly enough mana and is ignored with one point less', () => {
+      expect(
+        getCombatant(
+          reducer(withCombatant(fight, 'player', { mana: 10 }), useSkill('shield-bash')),
+          'player',
+        ).mana,
+      ).toBe(0);
+      const poor = withCombatant(fight, 'player', { mana: 9 });
+      expect(reducer(poor, useSkill('shield-bash'))).toBe(poor);
+    });
+  });
+
+  describe('heal skill', () => {
+    const fight = createFight(makePlayer({ learnedSkills: [seedSkill('mend')] }), goblin);
+
+    it('restores HP, pays the mana and logs the amount', () => {
+      const hurt = withCombatant(fight, 'player', { hp: 50 });
+      const after = reducer(hurt, useSkill('mend'));
+      expect(getCombatant(after, 'player').hp).toBe(80);
+      expect(getCombatant(after, 'player').mana).toBe(15);
+      expect(after.log).toEqual([{ type: 'heal', actor: 'player', amount: 30, skillName: 'Mend' }]);
+    });
+
+    it('never heals above max HP and logs only what was really restored', () => {
+      const almostFull = withCombatant(fight, 'player', { hp: 110 });
+      const after = reducer(almostFull, useSkill('mend'));
+      expect(getCombatant(after, 'player').hp).toBe(120);
+      expect(after.log).toEqual([{ type: 'heal', actor: 'player', amount: 10, skillName: 'Mend' }]);
+    });
+  });
+
+  describe('buff skill', () => {
+    const fight = createFight(fastPlayer([seedSkill('war-cry')]), goblin);
+
+    it('raises the attack bonus, pays the mana and logs it', () => {
+      const after = reducer(fight, useSkill('war-cry'));
+      expect(getCombatant(after, 'player').attackBonus).toBe(5);
+      expect(getCombatant(after, 'player').mana).toBe(15);
+      expect(after.log).toEqual([
+        { type: 'buff', actor: 'player', attackGained: 5, skillName: 'War Cry' },
+      ]);
+    });
+
+    it('makes the following attacks stronger', () => {
+      const buffed = reducer(fight, useSkill('war-cry'));
+      const after = reducer(buffed, { type: 'playerTurn', choice: { type: 'attack' } });
+      expect(getCombatant(after, 'monster').hp).toBe(46); // 14 + 5 - 5 = 14
+    });
   });
 });

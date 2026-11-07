@@ -1,5 +1,5 @@
-import type { MonsterDto, PlayerCharacterDto } from '../../api/types';
-import { calculateDamage } from './calc';
+import type { MonsterDto, PlayerCharacterDto, SkillBase } from '../../api/types';
+import { calculateDamage, calculateHeal, canUseSkill } from './calc';
 import { createCombatant, getAttack } from './combatants';
 import { getNextActor, scheduleNextAction, startTimeline } from './turnOrder';
 import type {
@@ -60,13 +60,14 @@ interface TurnOutcome {
   events: FightEvent[];
 }
 
-function resolveAttack(state: FightState, side: Side, rng: Rng): TurnOutcome {
+/** A normal attack (no skill, power 0) or a damage skill hitting the opponent. */
+function resolveDamage(state: FightState, side: Side, rng: Rng, skill?: SkillBase): TurnOutcome {
   const attacker = getCombatant(state, side);
   const target = getCombatant(state, opponentOf(side));
   const amount = calculateDamage(
     {
       attack: getAttack(attacker),
-      power: 0,
+      power: skill?.power ?? 0,
       defense: target.base.stats.defense,
       targetDefending: target.defending,
     },
@@ -77,7 +78,15 @@ function resolveAttack(state: FightState, side: Side, rng: Rng): TurnOutcome {
       ...c,
       hp: Math.max(0, c.hp - amount),
     })),
-    events: [{ type: 'damage', actor: side, target: target.side, amount }],
+    events: [
+      {
+        type: 'damage',
+        actor: side,
+        target: target.side,
+        amount,
+        ...(skill && { skillName: skill.name }),
+      },
+    ],
   };
 }
 
@@ -86,6 +95,57 @@ function resolveDefend(state: FightState, side: Side): TurnOutcome {
     combatants: updateSide(state.combatants, side, (c) => ({ ...c, defending: true })),
     events: [{ type: 'defend', actor: side }],
   };
+}
+
+/** Heals the caster itself, never above max HP. The event reports the HP really restored. */
+function resolveHeal(state: FightState, side: Side, skill: SkillBase, rng: Rng): TurnOutcome {
+  const caster = getCombatant(state, side);
+  const amount = calculateHeal(skill.power, caster.hp, caster.base.stats.maxHp, rng);
+  return {
+    combatants: updateSide(state.combatants, side, (c) => ({ ...c, hp: c.hp + amount })),
+    events: [{ type: 'heal', actor: side, amount, skillName: skill.name }],
+  };
+}
+
+/** Raises the caster's attack by the skill's power for the rest of the fight. */
+function resolveBuff(state: FightState, side: Side, skill: SkillBase): TurnOutcome {
+  return {
+    combatants: updateSide(state.combatants, side, (c) => ({
+      ...c,
+      attackBonus: c.attackBonus + skill.power,
+    })),
+    events: [{ type: 'buff', actor: side, attackGained: skill.power, skillName: skill.name }],
+  };
+}
+
+/** Pays the mana, then applies the effect of the skill by its type. */
+function resolveSkill(
+  state: FightState,
+  side: Side,
+  skillId: string,
+  rng: Rng,
+): TurnOutcome | undefined {
+  const caster = getCombatant(state, side);
+  const skill = caster.skills.find((s) => s.skillId === skillId);
+  if (skill === undefined || !canUseSkill(caster.mana, skill)) {
+    return undefined;
+  }
+
+  const paid: FightState = {
+    ...state,
+    combatants: updateSide(state.combatants, side, (c) => ({
+      ...c,
+      mana: c.mana - skill.manaCost,
+    })),
+  };
+  switch (skill.type) {
+    case 'Damage':
+      return resolveDamage(paid, side, rng, skill);
+    case 'Heal':
+      return resolveHeal(paid, side, skill, rng);
+    case 'Buff':
+      return resolveBuff(paid, side, skill);
+  }
 }
 
 /** Plays out the choice. `undefined` means: not possible, nothing happens. */
@@ -97,11 +157,11 @@ function resolveChoice(
 ): TurnOutcome | undefined {
   switch (choice.type) {
     case 'attack':
-      return resolveAttack(state, side, rng);
+      return resolveDamage(state, side, rng);
     case 'defend':
       return resolveDefend(state, side);
     case 'skill':
-      return undefined; // Skills are not supported yet.
+      return resolveSkill(state, side, choice.skillId, rng);
   }
 }
 
