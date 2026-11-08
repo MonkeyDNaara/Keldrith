@@ -22,6 +22,10 @@ export const en = {
     logout: 'Log out',
     checkingSession: 'Checking your session…',
   },
+  footer: {
+    madeBy: 'Made by Niko & Kevin',
+    project: 'A WBS Coding School project',
+  },
   form: {
     showPassword: 'Show password',
     hidePassword: 'Hide password',
@@ -74,6 +78,38 @@ export const en = {
       submitting: 'Creating account…',
       hasAccount: 'Already have an account?',
       toLogin: 'Log in',
+    },
+    landing: {
+      tagline: 'Choose your class. Outsmart your enemies. Grow stronger with every battle.',
+      intro:
+        'Keldrith is a turn-based fantasy RPG that runs right in your browser. Create your hero, pick your moves wisely and level up fight by fight.',
+      play: 'Play now',
+      login: 'Log in',
+      featuresTitle: 'How it works',
+      features: [
+        {
+          id: 'choose',
+          title: 'Choose your class',
+          text: 'Every class has its own stats, strengths and playstyle. Pick the one that fits you.',
+        },
+        {
+          id: 'fight',
+          title: 'Fight turn by turn',
+          text: 'Watch the turn order, choose your skills and outsmart goblins, wolves and orcs.',
+        },
+        {
+          id: 'level',
+          title: 'Level up',
+          text: 'Win battles to earn XP. Every level makes your hero stronger.',
+        },
+      ],
+      classesTitle: 'Four classes, four playstyles',
+      classes: [
+        { classId: 'warrior', name: 'Warrior', text: 'Holds the front line.' },
+        { classId: 'ranger', name: 'Ranger', text: 'Strikes fast, from afar or up close.' },
+        { classId: 'monk', name: 'Monk', text: 'Fights with discipline and mends wounds.' },
+        { classId: 'priest', name: 'Priest', text: 'Smites foes and heals allies.' },
+      ],
     },
     home: {
       loadError: 'Your character could not be loaded.',

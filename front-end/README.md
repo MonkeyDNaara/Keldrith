@@ -33,16 +33,25 @@ npm run dev    # http://localhost:5173
 
 ## Routes
 
-| Path                              | Page                                                  | Access    |
-| --------------------------------- | ----------------------------------------------------- | --------- |
-| `/login`, `/register`             | Login / register                                      | public    |
-| `/`                               | Redirect: no character → create, else → the character | logged in |
-| `/characters/new`                 | Create character                                      | logged in |
-| `/characters/:characterId`        | Character detail                                      | logged in |
-| `/characters/:characterId/fight`  | Fight                                                 | logged in |
-| `/characters/:characterId/skills` | Skills                                                | logged in |
-| `/styleguide`                     | Token and component preview                           | dev only  |
-| `*`                               | Not found                                             | public    |
+| Path                              | Page                                                                                        | Access    |
+| --------------------------------- | ------------------------------------------------------------------------------------------- | --------- |
+| `/`                               | Landing page; logged-in players are redirected: no character → create, else → the character | public    |
+| `/login`, `/register`             | Login / register                                                                            | public    |
+| `/characters/new`                 | Create character                                                                            | logged in |
+| `/characters/:characterId`        | Character detail                                                                            | logged in |
+| `/characters/:characterId/fight`  | Fight                                                                                       | logged in |
+| `/characters/:characterId/skills` | Skills                                                                                      | logged in |
+| `/styleguide`                     | Token and component preview                                                                 | dev only  |
+| `*`                               | Not found                                                                                   | public    |
+
+## Landing page
+
+`pages/LandingPage.tsx` is the start page (`/`) for visitors: hero (name, tagline, "Play now" / "Log in"),
+"How it works" cards and one tile per class. It uses its own `LandingLayout` (slim header + footer).
+A logged-in player never sees it: `/` renders `HomeRedirect`, which sends them to their hero or to the
+character wizard. Texts live in `i18n/en.ts` (`pages.landing`); the classes are static (icons and colors
+from `game/classVisuals.ts`), so the page needs no API. The footer (`components/layout/Footer.tsx`) is part of
+all three layouts.
 
 ## API & mocks
 
@@ -227,7 +236,8 @@ src/
   hooks/              # data hooks (TanStack Query)
   lib/                # app-wide setup and helpers (query client, humanize)
   components/
-    layout/           # top bar, page layout
+    layout/           # top bar, page layouts (app, auth, landing), footer
+    landing/          # landing page sections (hero, features and classes)
     character/        # character parts (class card, overview, rename, delete dialog …)
     fight/            # fight screen parts (arena, panels, action bar, timeline, log, result dialog)
     ui/               # reusable UI parts (class badge, stat bar, form alert, submit button …)
