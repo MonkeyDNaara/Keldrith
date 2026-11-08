@@ -7,3 +7,10 @@ docs/concepts.excalidraw
 # Claude project files (private)
 docs/claude/
 Claude outputs
+
+# .NET build output and local SQLite databases
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
