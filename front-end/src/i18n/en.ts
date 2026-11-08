@@ -54,6 +54,11 @@ export const en = {
     network: 'The server cannot be reached. Please try again later.',
     unexpected: 'Something went wrong. Please try again.',
   },
+  /** Learning a skill: only the two cases that need their own wording (the rest reuses characterErrors). */
+  skillErrors: {
+    cannotLearn: 'This skill cannot be learned right now. Your hero was reloaded.',
+    alreadyLearned: 'You already know this skill.',
+  },
   pages: {
     comingSoon: 'This page is coming soon.',
     login: {
@@ -145,7 +150,22 @@ export const en = {
       retry: 'Try again',
       backToHero: 'Back to your hero',
     },
-    skills: { title: 'Skills' },
+    skills: {
+      title: 'Skills',
+      intro: 'Spend skill points to learn new skills. Learned skills are ready in your next fight.',
+      loadError: 'The skills could not be loaded.',
+      retry: 'Try again',
+      backToHero: 'Back to your hero',
+      empty: 'This class has no skills yet.',
+      learn: 'Learn',
+      learning: 'Learning…',
+      learned: 'Learned',
+      learnLabel: (name: string) => `Learn ${name}`,
+      cost: (points: number) => (points === 1 ? '1 skill point' : `${points} skill points`),
+      lockedLevel: (level: number) => `Requires level ${level}`,
+      lockedPoints: 'Not enough skill points',
+      justLearned: (name: string) => `You learned ${name}.`,
+    },
     notFound: {
       title: 'Page not found',
       text: 'This path leads nowhere.',
