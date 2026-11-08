@@ -53,6 +53,7 @@ await using (var scope = app.Services.CreateAsyncScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
+    await GameDataSeeder.SeedAsync(db);
 }
 app.MapAuthEndpoints();
 app.Run();
