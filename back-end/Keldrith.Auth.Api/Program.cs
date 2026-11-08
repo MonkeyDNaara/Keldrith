@@ -57,6 +57,8 @@ await using (var scope = app.Services.CreateAsyncScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await GameDataSeeder.SeedAsync(db);
+    if (app.Environment.IsDevelopment())
+        await DemoDataSeeder.SeedAsync(db, scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>());
 }
 app.MapAuthEndpoints();
 app.MapGameDataEndpoints();
