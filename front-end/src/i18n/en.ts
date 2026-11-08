@@ -103,7 +103,12 @@ export const en = {
       backToHero: 'Back to your hero',
       fight: 'Start a fight',
     },
-    fight: { title: 'Fight' },
+    fight: {
+      title: 'Fight',
+      loadError: 'The fight could not be prepared.',
+      retry: 'Try again',
+      backToHero: 'Back to your hero',
+    },
     skills: { title: 'Skills' },
     notFound: {
       title: 'Page not found',
@@ -136,6 +141,72 @@ export const en = {
     deleteConfirm: 'Delete',
     deleting: 'Deleting…',
     closeDialog: 'Close',
+  },
+  fight: {
+    timeline: {
+      title: 'Turn order',
+      now: 'Acting now',
+      hint: 'Faster fighters act more often. The order assumes that speeds stay the same.',
+    },
+    combatant: {
+      turn: 'Turn',
+      defending: 'Defending',
+    },
+    actions: {
+      title: 'Actions',
+      attack: 'Attack',
+      defend: 'Defend',
+      flee: 'Flee',
+      skills: 'Skills',
+      yourTurn: 'Your turn',
+      monsterTurn: 'The monster is acting…',
+      manaCost: (cost: number) => `${cost} Mana`,
+      notEnoughMana: 'Not enough mana',
+      fullHealth: 'Already at full health',
+    },
+    result: {
+      won: 'Victory!',
+      lost: 'Defeat',
+      fled: 'You fled',
+      wonText: (monster: string) => `You defeated ${monster}.`,
+      lostText: (monster: string) => `${monster} was too strong this time.`,
+      fledText: (monster: string) => `You escaped from ${monster}.`,
+      reporting: 'Reporting the result…',
+      xpGained: (xp: number) => `+${xp} XP`,
+      noXp: 'No XP gained',
+      levelUp: (level: number) => `Level up! You reached level ${level}.`,
+      skillPointsGained: (count: number) =>
+        count === 1 ? '+1 skill point' : `+${count} skill points`,
+      retry: 'Try again',
+      fightAgain: 'Fight again',
+      backToHero: 'Back to your hero',
+    },
+    picker: {
+      title: 'Choose your opponent',
+      empty: 'No monsters are available right now.',
+      reward: (xp: number) => `Reward: ${xp} XP`,
+      skills: 'Skills',
+      noSkills: 'No skills',
+      fight: 'Fight',
+      fightWith: (name: string) => `Fight ${name}`,
+    },
+    log: {
+      title: 'Fight log',
+      start: 'The fight begins.',
+      damage: (actor: string, target: string, amount: number, skillName?: string) =>
+        skillName
+          ? `${actor} uses ${skillName} on ${target} for ${amount} damage.`
+          : `${actor} hits ${target} for ${amount} damage.`,
+      heal: (actor: string, amount: number, skillName: string) =>
+        amount > 0
+          ? `${actor} uses ${skillName} and restores ${amount} HP.`
+          : `${actor} uses ${skillName}, but is already at full health.`,
+      buff: (actor: string, attackGained: number, skillName: string) =>
+        `${actor} uses ${skillName}: attack +${attackGained}.`,
+      defend: (actor: string) => `${actor} takes a defensive stance.`,
+      fled: (actor: string) => `${actor} flees from the fight.`,
+      defeated: (name: string) => `${name} is defeated.`,
+    },
   },
   skillTypes: {
     Damage: 'Damage',

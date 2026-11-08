@@ -23,9 +23,11 @@ export const queryClient = new QueryClient({
 
 /**
  * All query keys in one place. A key identifies cached data; the same key = the same cache entry.
- * After a fight we invalidate queryKeys.myCharacter, so every component shows the new XP.
+ * After a fight we replace queryKeys.myCharacter with the server's answer (setQueryData),
+ * so every component shows the new XP at once.
  */
 export const queryKeys = {
   myCharacter: ['characters', 'mine'] as const,
   classes: ['classes'] as const,
+  monsters: ['monsters'] as const,
 };

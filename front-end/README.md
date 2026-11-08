@@ -175,6 +175,40 @@ state = reducer(state, { type: 'monsterTurn' }); // when state.active === 'monst
 | `monsterAi.ts`    | what a monster does on its turn                                |
 | `fightReducer.ts` | `createFight`, `createFightReducer` (attack, defend, skills …) |
 
+## Fight screen
+
+`pages/FightPage.tsx` (`/characters/:characterId/fight`) connects the fight engine to the UI.
+The flow: pick a monster (`useMonsters`, each card shows its `xpReward`), fight it in
+`FightArena`, see the reward in a result dialog. "Fight again" goes back to the monster list.
+
+- **The UI only displays and forwards.** Buttons dispatch actions to the engine, the engine
+  decides everything. XP, level-ups and skill points are never computed in the front-end: the
+  server decides them from `{ npcId, outcome, turns }`.
+- **Monster turns:** `hooks/useMonsterTurns` dispatches `monsterTurn` 700 ms after the monster
+  becomes active, in an effect with cleanup (leaving the page cancels a pending turn).
+- **Result is sent exactly once:** when the status leaves `Running`, `useSubmitFightResult` posts
+  the outcome (a ref guards against a second send, also in StrictMode). The answer's
+  `reward.character` replaces the cached character with `setQueryData`, so the top bar and the
+  character page show the new XP and level at once. If the request fails, the dialog shows the
+  error and a "Try again" button.
+- **Log and texts:** the engine logs data (`FightEvent`); `describeFightEvent` turns it into a
+  sentence with the texts in `i18n/en.ts` (`fight.*`).
+- **Stats on screen:** HP and mana bars, attack and defense with the sum of all fight bonuses
+  next to the value (green `+3`, red `−2`, `+0` in the normal color), speed on the turn-order bar.
+- **Known limit:** leaving a running fight (other page, reload) ends it without a result. Fleeing
+  is the way out that is reported to the server.
+
+| File                                     | Content                                                      |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| `components/fight/MonsterPicker.tsx`     | list of monsters, `MonsterCard` per monster                  |
+| `components/fight/FightArena.tsx`        | owns the fight state (`useReducer`), wires everything        |
+| `components/fight/CombatantPanel.tsx`    | name, level, HP / mana bars, attack and defense with bonuses |
+| `components/fight/ActionBar.tsx`         | attack, defend, flee and one button per learned skill        |
+| `components/fight/TurnTimeline.tsx`      | next actors and the speed of both fighters                   |
+| `components/fight/FightLog.tsx`          | log of the fight (`fightLogText.ts` builds the sentences)    |
+| `components/fight/FightResultDialog.tsx` | result overlay: waiting, error with retry, reward            |
+| `hooks/useMonsters.ts` and others        | monsters query, monster turn timer, submit fight result      |
+
 ## Folder structure
 
 Folders are created together with their first file.
@@ -195,6 +229,7 @@ src/
   components/
     layout/           # top bar, page layout
     character/        # character parts (class card, overview, rename, delete dialog …)
+    fight/            # fight screen parts (arena, panels, action bar, timeline, log, result dialog)
     ui/               # reusable UI parts (class badge, stat bar, form alert, submit button …)
   pages/              # one component per route
 ```
