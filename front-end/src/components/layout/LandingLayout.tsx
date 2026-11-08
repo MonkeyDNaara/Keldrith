@@ -27,7 +27,7 @@ export function LandingLayout() {
           </div>
         </div>
       </header>
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         <Outlet />
       </main>
       <Footer />
