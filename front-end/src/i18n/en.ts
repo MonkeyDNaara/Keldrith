@@ -138,6 +138,11 @@ export const en = {
     closeDialog: 'Close',
   },
   fight: {
+    combatant: {
+      turn: 'Turn',
+      defending: 'Defending',
+      attackBonus: (amount: number) => `Attack +${amount}`,
+    },
     log: {
       title: 'Fight log',
       start: 'The fight begins.',
