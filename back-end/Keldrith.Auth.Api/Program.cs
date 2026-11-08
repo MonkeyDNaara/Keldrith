@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Keldrith.Auth.Api.Data;
 using Keldrith.Auth.Api.Endpoints;
 using Keldrith.Auth.Api.Errors;
@@ -13,6 +14,8 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
+// Enums travel as text ("Damage"), not as numbers, as the API contract says.
+builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddValidation();
@@ -56,4 +59,5 @@ await using (var scope = app.Services.CreateAsyncScope())
     await GameDataSeeder.SeedAsync(db);
 }
 app.MapAuthEndpoints();
+app.MapGameDataEndpoints();
 app.Run();
