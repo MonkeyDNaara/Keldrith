@@ -1,18 +1,12 @@
 import { Link } from 'react-router';
-import type { PlayerSkillDto, SkillType } from '../../api/types';
+import type { PlayerSkillDto } from '../../api/types';
 import { t } from '../../i18n';
+import { SkillTypeBadge } from '../ui/SkillTypeBadge';
 
 interface LearnedSkillsListProps {
   characterId: number;
   skills: PlayerSkillDto[];
 }
-
-// SkillType is a closed union: Record (not Partial) makes TypeScript demand a color for every type.
-const TYPE_BADGE: Record<SkillType, string> = {
-  Damage: 'badge-error',
-  Heal: 'badge-success',
-  Buff: 'badge-info',
-};
 
 /** The character's learned skills (later = its fight actions). Empty → hint + link to learn. */
 export function LearnedSkillsList({ characterId, skills }: LearnedSkillsListProps) {
@@ -36,9 +30,7 @@ export function LearnedSkillsList({ characterId, skills }: LearnedSkillsListProp
             >
               <div className="flex items-start justify-between gap-2">
                 <span className="truncate font-semibold">{skill.name}</span>
-                <span className={`badge shrink-0 badge-soft badge-sm ${TYPE_BADGE[skill.type]}`}>
-                  {t.skillTypes[skill.type]}
-                </span>
+                <SkillTypeBadge type={skill.type} />
               </div>
               <p className="text-sm text-muted">{skill.description}</p>
               <p className="mt-auto flex gap-4 text-xs text-faint tabular-nums">
