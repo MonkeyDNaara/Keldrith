@@ -84,8 +84,6 @@ export function FightArena({
 
   return (
     <div className="flex flex-col gap-6">
-      {state.status === 'Running' && <TurnTimeline combatants={state.combatants} />}
-
       <div className="grid gap-4 md:grid-cols-2">
         <CombatantPanel
           combatant={player}
@@ -105,6 +103,8 @@ export function FightArena({
         onChoose={choose}
         onFlee={() => dispatch({ type: 'flee' })}
       />
+
+      {state.status === 'Running' && <TurnTimeline combatants={state.combatants} />}
 
       <FightLog events={state.log} names={names} />
 
