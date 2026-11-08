@@ -151,7 +151,6 @@ export const en = {
     combatant: {
       turn: 'Turn',
       defending: 'Defending',
-      attackBonus: (amount: number) => `Attack +${amount}`,
     },
     actions: {
       title: 'Actions',

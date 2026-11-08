@@ -47,19 +47,19 @@ export function CombatantPanel({
       <StatBar label={t.stats.maxHp} value={hp} max={base.stats.maxHp} color="hp" />
       <StatBar label={t.stats.maxMana} value={mana} max={base.stats.maxMana} color="mana" />
 
-      {/* What the damage formula uses: attack including buffs (the "Attack +N" badge shows where
-          the extra comes from) and defense. Speed is shown on the turn-order bar. */}
-      <StatList stats={{ attack: base.stats.attack + attackBonus, defense: base.stats.defense }} />
+      {/* What the damage formula uses. The value is the base stat, the colored number beside it
+          is the sum of all bonuses from this fight (buffs now, more effects later). Speed is
+          shown on the turn-order bar. */}
+      <StatList
+        stats={{ attack: base.stats.attack, defense: base.stats.defense }}
+        // No effect changes defense yet, so its bonus is always +0.
+        bonuses={{ attack: attackBonus, defense: 0 }}
+      />
 
       {/* Fixed height: the panel does not jump when an effect appears or disappears. */}
       <div className="flex min-h-6 flex-wrap gap-2">
         {defending && (
           <span className="badge badge-soft badge-sm badge-info">{texts.defending}</span>
-        )}
-        {attackBonus > 0 && (
-          <span className="badge badge-soft badge-sm badge-success">
-            {texts.attackBonus(attackBonus)}
-          </span>
         )}
       </div>
     </section>

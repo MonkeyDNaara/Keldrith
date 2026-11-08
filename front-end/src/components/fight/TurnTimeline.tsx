@@ -1,5 +1,6 @@
 import { previewTurnOrder, type Combatant, type Side } from '../../game/fight';
 import { t } from '../../i18n';
+import { StatBonus } from '../ui/StatBonus';
 
 interface TurnTimelineProps {
   combatants: readonly Combatant[];
@@ -32,7 +33,8 @@ export function TurnTimeline({ combatants, count = 6 }: TurnTimelineProps) {
             <span key={c.side} className="min-w-0">
               <span className="truncate">{c.base.name}</span>
               {': '}
-              {t.stats.speed} {c.base.stats.speed + c.speedBonus}
+              {t.stats.speed} {c.base.stats.speed}
+              <StatBonus bonus={c.speedBonus} />
             </span>
           ))}
         </p>
