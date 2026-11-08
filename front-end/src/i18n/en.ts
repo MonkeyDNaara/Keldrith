@@ -103,7 +103,12 @@ export const en = {
       backToHero: 'Back to your hero',
       fight: 'Start a fight',
     },
-    fight: { title: 'Fight' },
+    fight: {
+      title: 'Fight',
+      loadError: 'The fight could not be prepared.',
+      retry: 'Try again',
+      backToHero: 'Back to your hero',
+    },
     skills: { title: 'Skills' },
     notFound: {
       title: 'Page not found',
