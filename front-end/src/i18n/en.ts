@@ -137,6 +137,25 @@ export const en = {
     deleting: 'Deleting…',
     closeDialog: 'Close',
   },
+  fight: {
+    log: {
+      title: 'Fight log',
+      start: 'The fight begins.',
+      damage: (actor: string, target: string, amount: number, skillName?: string) =>
+        skillName
+          ? `${actor} uses ${skillName} on ${target} for ${amount} damage.`
+          : `${actor} hits ${target} for ${amount} damage.`,
+      heal: (actor: string, amount: number, skillName: string) =>
+        amount > 0
+          ? `${actor} uses ${skillName} and restores ${amount} HP.`
+          : `${actor} uses ${skillName}, but is already at full health.`,
+      buff: (actor: string, attackGained: number, skillName: string) =>
+        `${actor} uses ${skillName}: attack +${attackGained}.`,
+      defend: (actor: string) => `${actor} takes a defensive stance.`,
+      fled: (actor: string) => `${actor} flees from the fight.`,
+      defeated: (name: string) => `${name} is defeated.`,
+    },
+  },
   skillTypes: {
     Damage: 'Damage',
     Heal: 'Heal',
