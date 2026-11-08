@@ -13,6 +13,7 @@ import { ActionBar, type FightPhase } from './ActionBar';
 import { CombatantPanel } from './CombatantPanel';
 import { FightLog } from './FightLog';
 import { FightResultDialog } from './FightResultDialog';
+import { TurnTimeline } from './TurnTimeline';
 
 interface FightArenaProps {
   character: PlayerCharacterDto;
@@ -83,6 +84,8 @@ export function FightArena({
 
   return (
     <div className="flex flex-col gap-6">
+      {state.status === 'Running' && <TurnTimeline combatants={state.combatants} />}
+
       <div className="grid gap-4 md:grid-cols-2">
         <CombatantPanel
           combatant={player}

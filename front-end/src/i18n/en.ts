@@ -143,6 +143,11 @@ export const en = {
     closeDialog: 'Close',
   },
   fight: {
+    timeline: {
+      title: 'Turn order',
+      now: 'Acting now',
+      hint: 'Faster fighters act more often. The order assumes that speeds stay the same.',
+    },
     combatant: {
       turn: 'Turn',
       defending: 'Defending',
