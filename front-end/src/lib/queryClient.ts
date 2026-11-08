@@ -29,5 +29,7 @@ export const queryClient = new QueryClient({
 export const queryKeys = {
   myCharacter: ['characters', 'mine'] as const,
   classes: ['classes'] as const,
+  /** Needs the class id, so this one is a function: one cache entry per class. */
+  classSkills: (classId: string) => ['classes', classId, 'skills'] as const,
   monsters: ['monsters'] as const,
 };
