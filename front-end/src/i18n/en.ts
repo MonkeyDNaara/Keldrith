@@ -172,6 +172,15 @@ export const en = {
       fightAgain: 'Fight again',
       backToHero: 'Back to your hero',
     },
+    picker: {
+      title: 'Choose your opponent',
+      empty: 'No monsters are available right now.',
+      reward: (xp: number) => `Reward: ${xp} XP`,
+      skills: 'Skills',
+      noSkills: 'No skills',
+      fight: 'Fight',
+      fightWith: (name: string) => `Fight ${name}`,
+    },
     log: {
       title: 'Fight log',
       start: 'The fight begins.',
