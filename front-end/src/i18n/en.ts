@@ -143,6 +143,18 @@ export const en = {
       defending: 'Defending',
       attackBonus: (amount: number) => `Attack +${amount}`,
     },
+    actions: {
+      title: 'Actions',
+      attack: 'Attack',
+      defend: 'Defend',
+      flee: 'Flee',
+      skills: 'Skills',
+      yourTurn: 'Your turn',
+      monsterTurn: 'The monster is acting…',
+      manaCost: (cost: number) => `${cost} Mana`,
+      notEnoughMana: 'Not enough mana',
+      fullHealth: 'Already at full health',
+    },
     log: {
       title: 'Fight log',
       start: 'The fight begins.',
