@@ -1,45 +1,61 @@
-# Keldrith Auth API
+# Keldrith API
 
-ASP.NET Core 10 Minimal API for the current Keldrith frontend authentication flow.
+ASP.NET Core 10 Minimal API with EF Core (SQLite) and JWT authentication for the Keldrith front-end.
 
 ## Endpoints
 
-| Method | Route | Purpose |
-|---|---|---|
-| POST | `/api/auth/register` | Register and immediately sign in |
-| POST | `/api/auth/login` | Sign in |
-| GET | `/api/auth/me` | Restore current session (JWT required) |
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| POST | `/api/auth/register` | – | Register and immediately sign in |
+| POST | `/api/auth/login` | – | Sign in |
+| GET | `/api/auth/me` | JWT | Restore the current session |
+| GET | `/api/classes` | – | List the playable classes |
+| GET | `/api/monsters` | JWT | List the monsters (with XP reward and skills) |
+| GET | `/api/characters` | JWT | Own characters (zero or one) |
+| GET | `/api/characters/{id}` | JWT | One own character |
+| POST | `/api/characters` | JWT | Create the character (one per user) |
+| PUT | `/api/characters/{id}` | JWT | Rename the character |
+| DELETE | `/api/characters/{id}` | JWT | Delete the character |
+| POST | `/api/characters/{id}/fight-results` | JWT | Report a fight; the server decides the reward |
 
-The JSON response follows the frontend `AuthResponse` and `UserDto` types: `token`, `expiresAt`, and `user` (`userId`, `username`, `email`, `role`).
+JSON is camelCase, enums are strings (`"Damage"`, `"Won"`). The DTOs match the front-end types in `front-end/src/api/types.ts`.
 
 ## Rules
 
-- Username: trimmed, 3–20 characters, case-insensitive uniqueness.
-- Email: trimmed, max 254 characters, case-insensitive uniqueness.
-- Password: minimum 8 characters; never trimmed; stored as a salted password hash.
-- Duplicate username/email: HTTP 409 with `errors.username` and/or `errors.email`.
-- Invalid request: HTTP 400 Problem Details with field errors.
-- Wrong login credentials: HTTP 401 with a generic message.
+- **Server-authoritative:** the client only reports `{ npcId, outcome, turns }`. XP comes from the monster in the database, only `Won` pays.
+- Level-up: `XpToNextLevel(level) = 50 * (level + 1)`, several level-ups at once are possible, +1 skill point per level-up, max level 10 (no XP gained there).
+- Stats are computed, never stored: `baseStats + statsPerLevel * (level - 1)`.
+- Each user has at most one character (database unique index + endpoint check, second create → 409).
+- A foreign or unknown character id always gives 404 (no hint that it exists).
+- Username 3–20 characters, email valid, password at least 8 characters (stored as a salted hash), character name 2–20 characters.
+- Errors are Problem Details; validation errors (400) carry an `errors` dictionary per field; conflicts are 409; wrong login is a generic 401.
 - JWT lifetime: 8 hours; claims: `sub`, `name`, `role`.
 
-## First-time setup
+## Run it
 
-Install the .NET 10 SDK. From this folder run:
+Install the .NET 10 SDK. From this folder:
 
 ```bash
 dotnet tool restore
-dotnet restore
-dotnet ef migrations add InitialCreate
-dotnet ef database update
 dotnet run
 ```
 
-The app applies committed migrations at startup. Generate the initial migration once and commit `Data/Migrations` to source control.
+The app applies the committed migrations at startup and seeds the game data (4 classes, 12 player skills, 3 monsters, 4 monster skills) when the tables are empty. In Development it also creates the demo account `demo@keldrith.dev` / `demo-password` with one character. The database file `keldrith-auth.db` is created in this folder and is git-ignored. To start from scratch, stop the app and delete `keldrith-auth.db*`.
 
-Backend URL: `http://localhost:5080`. OpenAPI: `/openapi/v1.json`. Scalar: `/scalar` (Development only).
+After a model change, create a migration and commit it:
 
-The frontend calls relative `/api` URLs. Configure Vite's proxy to forward `/api` to `http://localhost:5080` (or your selected backend port).
+```bash
+dotnet ef migrations add <Name> --output-dir Data/Migrations
+```
 
-`appsettings.Development.json` contains a development-only JWT signing key. The EF Core design-time factory keeps `dotnet ef` from starting the API while creating migrations. Never use it in production. Configure `Jwt__SigningKey` as a secret with at least 32 UTF-8 bytes in production.
+Back-end URL: `http://localhost:5080`. OpenAPI: `/openapi/v1.json`. Scalar UI: `/scalar` (Development only).
 
-This initial backend intentionally does not yet implement character, game-data, profile-editing, or account-deletion endpoints.
+The front-end calls relative `/api` URLs; the Vite dev proxy forwards them to `http://localhost:5080`. Run it against this API with `VITE_USE_MOCKS=false` (for example in `front-end/.env.local`).
+
+## Configuration
+
+`appsettings.Development.json` contains a development-only JWT signing key. Never use it in production: set `Jwt__SigningKey` as a secret with at least 32 UTF-8 bytes. The EF Core design-time factory lets `dotnet ef` work without starting the API. The demo account is only created when the environment is `Development`.
+
+## Not implemented yet
+
+Class skills (`GET /api/classes/{classId}/skills`) and learning skills (`POST /api/characters/{id}/skills`), admin endpoints, profile editing, account deletion.
