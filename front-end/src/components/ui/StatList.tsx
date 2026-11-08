@@ -7,13 +7,18 @@ interface StatListProps {
   bonuses?: Stats;
 }
 
+// Full class names (no string building), so Tailwind finds them. Entries with a bonus ("14 +0")
+// are wider, so the label ("Defense") is not cut off.
+const COLUMNS = 'grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]';
+const COLUMNS_WITH_BONUS = 'grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]';
+
 /**
  * Stats as a description list ("Attack 14"). Built from the data: known stats first in a fixed
  * order, unknown ones from the server last with a readable label. auto-fill = any count fits.
  */
 export function StatList({ stats, bonuses }: StatListProps) {
   return (
-    <dl className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-x-3 gap-y-1 text-sm">
+    <dl className={`grid gap-x-3 gap-y-1 text-sm ${bonuses ? COLUMNS_WITH_BONUS : COLUMNS}`}>
       {getStatEntries(stats).map((stat) => (
         <div key={stat.key} className="flex justify-between gap-2">
           <dt className="truncate text-faint">{stat.label}</dt>
