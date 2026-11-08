@@ -19,5 +19,7 @@ public sealed record PlayerCharacterDto(
     public static PlayerCharacterDto From(Character c, CharacterClass characterClass) => new(
         c.CharacterId, c.Name, c.Level, GameRules.StatsAt(characterClass, c.Level),
         c.ClassId, c.Xp, GameRules.XpToNextLevel(c.Level), c.SkillPoints,
-        c.LearnedSkills.Select(PlayerSkillDto.From).ToList(), c.CreatedAt);
+        c.LearnedSkills.Select(PlayerSkillDto.From).ToList(),
+        // SQLite stores no time zone: mark the value as UTC so the JSON ends with "Z".
+        DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc));
 }
