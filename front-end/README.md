@@ -218,6 +218,37 @@ The flow: pick a monster (`useMonsters`, each card shows its `xpReward`), fight 
 | `components/fight/FightResultDialog.tsx` | result overlay: waiting, error with retry, reward            |
 | `hooks/useMonsters.ts` and others        | monsters query, monster turn timer, submit fight result      |
 
+## Skills
+
+`pages/SkillsPage.tsx` (`/characters/:characterId/skills`) lists the skills of the hero's class and
+lets the player spend skill points. The page only checks that the hero exists; `SkillsPanel` owns
+the data (same split as `FightPage` → `FightArena`).
+
+- **Three states per skill** (`game/skillState.ts`, a pure function): learned, learnable, locked
+  (reason: required level or not enough skill points). It is only a hint for the screen: the server
+  checks every rule again when the player clicks "Learn" and decides.
+- **Data:** `useClassSkills` (`GET /api/classes/{classId}/skills`, public, cached once per class)
+  and `useLearnSkill` (`POST /api/characters/{characterId}/skills`).
+- **Cache:** the answer is the complete updated character. `useLearnSkill` puts it into the
+  `myCharacter` cache with `setQueryData` (same pattern as the fight reward), so skill points, the
+  top bar and the learned skills update at once. The next fight reads `learnedSkills` from the same
+  character, so the action bar shows the new skill without any change.
+- **Errors:** own texts instead of server messages (`character/learnSkillError.ts`). 400 and 409
+  mean the screen was out of date, so the character is reloaded. While a request runs, all "Learn"
+  buttons are disabled.
+- **Accessibility:** a locked skill shows its reason as visible text (linked with
+  `aria-describedby`), the buttons read "Learn <name>" for screen readers, and the success message
+  sits in a live region.
+
+| File                                          | Content                                                 |
+| --------------------------------------------- | ------------------------------------------------------- |
+| `components/skills/SkillsPanel.tsx`           | class skills query, learn mutation, cards, messages     |
+| `components/skills/SkillCard.tsx`             | one skill with its state, cost and button               |
+| `components/ui/SkillTypeBadge.tsx`            | Damage / Heal / Buff label (also on the character page) |
+| `hooks/useClassSkills.ts`, `useLearnSkill.ts` | skills of a class, learn a skill                        |
+| `game/skillState.ts`                          | learned / learnable / locked                            |
+| `character/learnSkillError.ts`                | error text for a failed learn request                   |
+
 ## Folder structure
 
 Folders are created together with their first file.
@@ -227,12 +258,12 @@ src/
   main.tsx, App.tsx   # entry point, providers, routes
   styles/             # global styles, Tailwind + daisyUI themes (design tokens)
   theme/              # dark/light theme hook and toggle
-  game/               # data-driven registries (classes, stats) with fallbacks
+  game/               # data-driven registries (classes, stats) with fallbacks, skill states
     fight/            # pure fight engine (reducer) with its tests
   i18n/               # all UI texts in one place
   api/                # API layer: types, client, HTTP + mock implementation
   auth/               # auth state, protected routes, form schemas, demo account
-  character/          # character form schema and error mapping
+  character/          # character form schema and error mapping (also for learning skills)
   hooks/              # data hooks (TanStack Query)
   lib/                # app-wide setup and helpers (query client, humanize)
   components/
@@ -240,6 +271,7 @@ src/
     landing/          # landing page sections (hero, features and classes)
     character/        # character parts (class card, overview, rename, delete dialog …)
     fight/            # fight screen parts (arena, panels, action bar, timeline, log, result dialog)
+    skills/           # skills page parts (panel, skill card)
     ui/               # reusable UI parts (class badge, stat bar, form alert, submit button …)
   pages/              # one component per route
 ```
