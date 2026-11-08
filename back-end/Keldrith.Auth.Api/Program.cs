@@ -64,4 +64,5 @@ app.MapAuthEndpoints();
 app.MapGameDataEndpoints();
 app.MapCharacterEndpoints();
 app.MapFightEndpoints();
+app.MapSkillEndpoints();
 app.Run();

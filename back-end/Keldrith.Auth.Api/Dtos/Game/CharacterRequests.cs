@@ -4,3 +4,5 @@ namespace Keldrith.Auth.Api.Dtos.Game;
 public sealed record CreateCharacterRequest(string? Name, string? ClassId);
 
 public sealed record UpdateCharacterRequest(string? Name);
+
+public sealed record LearnSkillRequest(string? SkillId);
