@@ -60,4 +60,5 @@ await using (var scope = app.Services.CreateAsyncScope())
 }
 app.MapAuthEndpoints();
 app.MapGameDataEndpoints();
+app.MapCharacterEndpoints();
 app.Run();
