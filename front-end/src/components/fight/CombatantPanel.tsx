@@ -3,6 +3,7 @@ import type { Combatant } from '../../game/fight';
 import { t } from '../../i18n';
 import { ClassBadge } from '../ui/ClassBadge';
 import { StatBar } from '../ui/StatBar';
+import { StatList } from '../ui/StatList';
 
 interface CombatantPanelProps {
   combatant: Combatant;
@@ -45,6 +46,10 @@ export function CombatantPanel({
 
       <StatBar label={t.stats.maxHp} value={hp} max={base.stats.maxHp} color="hp" />
       <StatBar label={t.stats.maxMana} value={mana} max={base.stats.maxMana} color="mana" />
+
+      {/* What the damage formula uses: attack including buffs (the "Attack +N" badge shows where
+          the extra comes from) and defense. Speed is shown on the turn-order bar. */}
+      <StatList stats={{ attack: base.stats.attack + attackBonus, defense: base.stats.defense }} />
 
       {/* Fixed height: the panel does not jump when an effect appears or disappears. */}
       <div className="flex min-h-6 flex-wrap gap-2">
