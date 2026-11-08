@@ -8,14 +8,9 @@ import { PageSpinner } from '../components/ui/PageSpinner';
 import { useClasses } from '../hooks/useClasses';
 import { useMyCharacter } from '../hooks/useMyCharacter';
 import { t } from '../i18n';
+import { parseCharacterId } from '../lib/parseCharacterId';
 
 const texts = t.pages.characterDetail;
-
-/** URL params are strings: "7" → 7. Anything else ("abc", "-1", "1.5") → null. */
-function parseCharacterId(param: string | undefined): number | null {
-  const id = Number(param);
-  return Number.isInteger(id) && id > 0 ? id : null;
-}
 
 /** /characters/:characterId — the user's one hero: overview, skills, rename, delete. */
 export function CharacterDetailPage() {
