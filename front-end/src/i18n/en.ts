@@ -155,6 +155,23 @@ export const en = {
       notEnoughMana: 'Not enough mana',
       fullHealth: 'Already at full health',
     },
+    result: {
+      won: 'Victory!',
+      lost: 'Defeat',
+      fled: 'You fled',
+      wonText: (monster: string) => `You defeated ${monster}.`,
+      lostText: (monster: string) => `${monster} was too strong this time.`,
+      fledText: (monster: string) => `You escaped from ${monster}.`,
+      reporting: 'Reporting the result…',
+      xpGained: (xp: number) => `+${xp} XP`,
+      noXp: 'No XP gained',
+      levelUp: (level: number) => `Level up! You reached level ${level}.`,
+      skillPointsGained: (count: number) =>
+        count === 1 ? '+1 skill point' : `+${count} skill points`,
+      retry: 'Try again',
+      fightAgain: 'Fight again',
+      backToHero: 'Back to your hero',
+    },
     log: {
       title: 'Fight log',
       start: 'The fight begins.',
