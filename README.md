@@ -7,6 +7,15 @@ A turn-based browser RPG. Players register, create a hero, learn skills, fight m
 | `front-end/` | React, TypeScript, Vite                | [front-end/README.md](front-end/README.md)                                   |
 | `back-end/`  | ASP.NET Core Web API, SQLite, JWT auth | [back-end/Keldrith.Auth.Api/README.md](back-end/Keldrith.Auth.Api/README.md) |
 
+## Features
+
+- Register and log in (JWT)
+- Create, rename and delete a hero (four classes, one hero per account)
+- Turn-based fights against monsters (attack, defend, skills, flee)
+- XP and level-ups, decided by the server
+- Learn skills with skill points; learned skills show up in the next fight
+- Light and dark theme, responsive layout
+
 ## Run the demo
 
 Requirements: Node.js (see `front-end/.nvmrc`) and the .NET 10 SDK.
@@ -58,3 +67,10 @@ dotnet run
 ```
 
 All accounts and heroes are gone; the demo account is seeded again.
+
+## Checks
+
+```bash
+cd front-end
+npm run check   # lint, format check, tests, build
+```
