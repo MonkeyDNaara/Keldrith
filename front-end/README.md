@@ -4,7 +4,7 @@ React + TypeScript single-page app for Keldrith, built with Vite.
 
 ## Requirements
 
-- Node.js `^20.19.0 || >=22.12.0` (the project uses Node 26, see `.nvmrc`)
+- Node.js `>=26` (see `.nvmrc`)
 - npm (comes with Node)
 
 ## Getting started
