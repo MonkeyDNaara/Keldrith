@@ -13,6 +13,11 @@ export function createGameConfig(parent: HTMLElement, scenes: Scene[]): Types.Co
     pixelArt: true,
     // The canvas has no own colour: the container's theme token shows through (light / dark).
     transparent: true,
+    // The map has no sound yet: without this Phaser creates a Web Audio context on boot, and the
+    // browser warns because no user gesture happened. Remove it once sound is added.
+    audio: { noAudio: true },
+    // No Phaser version banner in the browser console.
+    banner: false,
     scale: {
       // The canvas always fills its container 1:1 (no letterbox bars); the camera zoom (#49)
       // decides how many tiles are visible, at 1440 px and at 390 px.
