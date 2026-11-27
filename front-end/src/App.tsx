@@ -1,8 +1,10 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { LandingLayout } from './components/layout/LandingLayout';
+import { PageSpinner } from './components/ui/PageSpinner';
 import { CharacterDetailPage } from './pages/CharacterDetailPage';
 import { CreateCharacterPage } from './pages/CreateCharacterPage';
 import { FightPage } from './pages/FightPage';
@@ -12,6 +14,11 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { SkillsPage } from './pages/SkillsPage';
 import { StyleguidePage } from './pages/StyleguidePage';
+
+// Lazy: the map page pulls in Phaser, which should only load when a player opens the map.
+const MapPage = lazy(() =>
+  import('./pages/MapPage').then((module) => ({ default: module.MapPage })),
+);
 
 /** All routes of the app in one place. */
 export function App() {
@@ -34,6 +41,14 @@ export function App() {
           <Route path="/characters/new" element={<CreateCharacterPage />} />
           <Route path="/characters/:characterId" element={<CharacterDetailPage />} />
           <Route path="/characters/:characterId/fight" element={<FightPage />} />
+          <Route
+            path="/characters/:characterId/map"
+            element={
+              <Suspense fallback={<PageSpinner />}>
+                <MapPage />
+              </Suspense>
+            }
+          />
           <Route path="/characters/:characterId/skills" element={<SkillsPage />} />
         </Route>
       </Route>

@@ -150,6 +150,13 @@ export const en = {
       retry: 'Try again',
       backToHero: 'Back to your hero',
     },
+    map: {
+      title: 'World map',
+      loadError: 'The map could not be prepared.',
+      retry: 'Try again',
+      backToHero: 'Back to your hero',
+      loading: 'Loading the map…',
+    },
     skills: {
       title: 'Skills',
       intro: 'Spend skill points to learn new skills. Learned skills are ready in your next fight.',
